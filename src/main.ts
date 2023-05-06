@@ -24,7 +24,7 @@ class Application {
     this.server = server
 
     if (!process.env.SECRET_KEY) this.logger.error('Set "SECRET" env')
-    this.DEV_MODE = process.env.NODE_ENV === 'production' ? false : true
+    this.DEV_MODE = process.env.NODE_ENV !== 'production'
     this.PORT = process.env.PORT || '5000'
     this.corsOriginList = process.env.CORS_ORIGIN_LIST
       ? process.env.CORS_ORIGIN_LIST.split(',').map((origin) => origin.trim())
@@ -33,6 +33,7 @@ class Application {
     this.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '1205'
   }
 
+  // swagger 인증
   private setUpBasicAuth() {
     this.server.use(
       ['/docs', '/docs-json'],
@@ -45,21 +46,23 @@ class Application {
     )
   }
 
-  private setUpOpenAPIMidleware() {
+  // 외부 API 관련
+  private setUpOpenAPIMiddleware() {
     SwaggerModule.setup(
       'docs',
       this.server,
       SwaggerModule.createDocument(
         this.server,
         new DocumentBuilder()
-          .setTitle('Yoon Sang Seok - API')
-          .setDescription('TypeORM In Nest')
+          .setTitle('Janek - API')
+          .setDescription('blog with typeorm')
           .setVersion('0.0.1')
           .build(),
       ),
     )
   }
 
+  // middleware 추가
   private async setUpGlobalMiddleware() {
     this.server.enableCors({
       origin: this.corsOriginList,
@@ -67,7 +70,8 @@ class Application {
     })
     this.server.use(cookieParser())
     this.setUpBasicAuth()
-    this.setUpOpenAPIMidleware()
+    this.setUpOpenAPIMiddleware()
+    // pipe
     this.server.useGlobalPipes(
       new ValidationPipe({
         transform: true,
@@ -78,9 +82,11 @@ class Application {
     this.server.useGlobalInterceptors(
       new ClassSerializerInterceptor(this.server.get(Reflector)),
     )
+    // error handling
     this.server.useGlobalFilters(new HttpApiExceptionFilter())
   }
 
+  // bootstrap
   async boostrap() {
     await this.setUpGlobalMiddleware()
     await this.server.listen(this.PORT)
@@ -101,7 +107,7 @@ class Application {
 
 async function init(): Promise<void> {
   const server = await NestFactory.create<NestExpressApplication>(AppModule)
-  const app = new Application(server)
+  const app = new Application(server) // singleton
   await app.boostrap()
   app.startLog()
 }

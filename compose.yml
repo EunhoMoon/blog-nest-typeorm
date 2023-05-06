@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   db:
-    image: postgres:9.6.23
+    image: postgres:14.7
     restart: always
     env_file:
       - ./.env

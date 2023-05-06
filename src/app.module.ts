@@ -14,8 +14,6 @@ import { ProfileEntity } from './profiles/profiles.entity'
 import { BlogEntity } from './blogs/blogs.entity'
 import { VisitorEntity } from './visitors/visitors.entity'
 import { TagEntity } from './tags/tags.entity'
-import { VisitorsModule } from './visitors/visitors.module';
-import { VisitorsModule } from './visitors/visitors.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -31,7 +29,7 @@ const typeOrmModuleOptions = {
     entities: [UserEntity, ProfileEntity, BlogEntity, VisitorEntity, TagEntity],
     synchronize: true, //! set 'false' in production
     autoLoadEntities: true,
-    logging: true,
+    logging: true, //! set 'false' in production
     keepConnectionAlive: true,
   }),
   inject: [ConfigService],
